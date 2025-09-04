@@ -72,6 +72,88 @@
                 return true;
             }
 
+            // Ensure default values are set for first run
+            function ensureDefaultValues() {
+                console.log('🔧 Проверяем и устанавливаем значения по умолчанию...');
+                
+                // Инициализируем tasks если не существует
+                if (!appState.tasks || !Array.isArray(appState.tasks)) {
+                    appState.tasks = [];
+                    console.log('📝 tasks инициализирован как пустой массив');
+                }
+                
+                // Инициализируем rewards если не существует
+                if (!appState.rewards || !Array.isArray(appState.rewards)) {
+                    appState.rewards = [];
+                    console.log('🎁 rewards инициализирован как пустой массив');
+                }
+                
+                // Инициализируем activityData если не существует
+                if (!appState.activityData || typeof appState.activityData !== 'object') {
+                    appState.activityData = {};
+                    console.log('📊 activityData инициализирован как пустой объект');
+                }
+                
+                // Инициализируем rewardPlan если не существует
+                if (!appState.rewardPlan || typeof appState.rewardPlan !== 'object') {
+                    appState.rewardPlan = { description: '' };
+                    console.log('🎯 rewardPlan инициализирован как пустой объект');
+                }
+                
+                // Инициализируем resetDate если не существует
+                if (!appState.resetDate || typeof appState.resetDate.getFullYear !== 'function') {
+                    appState.resetDate = new Date();
+                    console.log('📅 resetDate инициализирован как текущая дата');
+                }
+                
+                // Инициализируем currentMonth если не существует
+                if (!appState.currentMonth || typeof appState.currentMonth.getFullYear !== 'function') {
+                    appState.currentMonth = new Date();
+                    console.log('📅 currentMonth инициализирован как текущая дата');
+                }
+                
+                // Инициализируем selectedDate если не существует
+                if (!appState.selectedDate || typeof appState.selectedDate.getFullYear !== 'function') {
+                    appState.selectedDate = new Date();
+                    console.log('📅 selectedDate инициализирован как текущая дата');
+                }
+                
+                // Инициализируем progress если не существует
+                if (!appState.progress || typeof appState.progress !== 'object') {
+                    appState.progress = {
+                        level: 1,
+                        totalXP: 0,
+                        currentLevelXP: 0,
+                        bestWeekXP: 0,
+                        weeklyXP: 0,
+                        weeklyStars: 0,
+                        starBank: 0,
+                        weekStartKey: null
+                    };
+                    console.log('📈 progress инициализирован со значениями по умолчанию');
+                }
+                
+                // Инициализируем role если не существует
+                if (!appState.role) {
+                    appState.role = 'viewer';
+                    console.log('👤 role инициализирован как viewer');
+                }
+                
+                // Инициализируем userName если не существует
+                if (!appState.userName) {
+                    appState.userName = 'Михаил';
+                    console.log('👤 userName инициализирован как Михаил');
+                }
+                
+                // Инициализируем pinCodes если не существует
+                if (!appState.pinCodes || typeof appState.pinCodes !== 'object') {
+                    appState.pinCodes = {};
+                    console.log('🔑 pinCodes инициализирован как пустой объект');
+                }
+                
+                console.log('✅ Все значения по умолчанию установлены');
+            }
+
             // Безопасное обновление UI
             function safeUpdateUI() {
                 if (document.readyState === 'complete') {
@@ -2725,88 +2807,6 @@
                 }
                 
                 return { isMobile, isIOS, isAndroid };
-            }
-
-            // Ensure default values are set for first run
-            function ensureDefaultValues() {
-                console.log('🔧 Проверяем и устанавливаем значения по умолчанию...');
-                
-                // Инициализируем tasks если не существует
-                if (!appState.tasks || !Array.isArray(appState.tasks)) {
-                    appState.tasks = [];
-                    console.log('📝 tasks инициализирован как пустой массив');
-                }
-                
-                // Инициализируем rewards если не существует
-                if (!appState.rewards || !Array.isArray(appState.rewards)) {
-                    appState.rewards = [];
-                    console.log('🎁 rewards инициализирован как пустой массив');
-                }
-                
-                // Инициализируем activityData если не существует
-                if (!appState.activityData || typeof appState.activityData !== 'object') {
-                    appState.activityData = {};
-                    console.log('📊 activityData инициализирован как пустой объект');
-                }
-                
-                // Инициализируем rewardPlan если не существует
-                if (!appState.rewardPlan || typeof appState.rewardPlan !== 'object') {
-                    appState.rewardPlan = { description: '' };
-                    console.log('🎯 rewardPlan инициализирован как пустой объект');
-                }
-                
-                // Инициализируем resetDate если не существует
-                if (!appState.resetDate || typeof appState.resetDate.getFullYear !== 'function') {
-                    appState.resetDate = new Date();
-                    console.log('📅 resetDate инициализирован как текущая дата');
-                }
-                
-                // Инициализируем currentMonth если не существует
-                if (!appState.currentMonth || typeof appState.currentMonth.getFullYear !== 'function') {
-                    appState.currentMonth = new Date();
-                    console.log('📅 currentMonth инициализирован как текущая дата');
-                }
-                
-                // Инициализируем selectedDate если не существует
-                if (!appState.selectedDate || typeof appState.selectedDate.getFullYear !== 'function') {
-                    appState.selectedDate = new Date();
-                    console.log('📅 selectedDate инициализирован как текущая дата');
-                }
-                
-                // Инициализируем progress если не существует
-                if (!appState.progress || typeof appState.progress !== 'object') {
-                    appState.progress = {
-                        level: 1,
-                        totalXP: 0,
-                        currentLevelXP: 0,
-                        bestWeekXP: 0,
-                        weeklyXP: 0,
-                        weeklyStars: 0,
-                        starBank: 0,
-                        weekStartKey: null
-                    };
-                    console.log('📈 progress инициализирован со значениями по умолчанию');
-                }
-                
-                // Инициализируем role если не существует
-                if (!appState.role) {
-                    appState.role = 'viewer';
-                    console.log('👤 role инициализирован как viewer');
-                }
-                
-                // Инициализируем userName если не существует
-                if (!appState.userName) {
-                    appState.userName = 'Михаил';
-                    console.log('👤 userName инициализирован как Михаил');
-                }
-                
-                // Инициализируем pinCodes если не существует
-                if (!appState.pinCodes || typeof appState.pinCodes !== 'object') {
-                    appState.pinCodes = {};
-                    console.log('🔑 pinCodes инициализирован как пустой объект');
-                }
-                
-                console.log('✅ Все значения по умолчанию установлены');
             }
 
             // Initialize Application
