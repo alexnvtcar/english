@@ -3028,6 +3028,9 @@
                 
                 console.log('✅ Приложение инициализировано');
                 
+                // Инициализируем PWA
+                initPWA();
+                
                 // Устанавливаем флаг завершения инициализации
                 appState.isInitializing = false;
                 
@@ -7592,6 +7595,101 @@
                     clearInterval(autoSyncInterval);
                     autoSyncInterval = null;
                     console.log('Автосинхронизация остановлена');
+                }
+            }
+
+            // PWA инициализация
+            let deferredPrompt;
+            let installButton;
+
+            function initPWA() {
+                console.log('📱 Инициализация PWA...');
+                
+                // Создаем кнопку установки
+                createInstallButton();
+                
+                // Обработчик события beforeinstallprompt
+                window.addEventListener('beforeinstallprompt', (e) => {
+                    console.log('📱 PWA: beforeinstallprompt сработал');
+                    e.preventDefault();
+                    deferredPrompt = e;
+                    showInstallButton();
+                });
+                
+                // Обработчик события appinstalled
+                window.addEventListener('appinstalled', () => {
+                    console.log('📱 PWA: Приложение установлено');
+                    hideInstallButton();
+                    deferredPrompt = null;
+                });
+                
+                // Проверяем, установлено ли уже приложение
+                if (window.matchMedia('(display-mode: standalone)').matches) {
+                    console.log('📱 PWA: Приложение уже установлено');
+                    hideInstallButton();
+                }
+            }
+            
+            function createInstallButton() {
+                // Создаем кнопку установки
+                const installBtn = document.createElement('button');
+                installBtn.id = 'installPWAButton';
+                installBtn.innerHTML = '📱 Установить приложение';
+                installBtn.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    z-index: 10000;
+                    background: #1e40af;
+                    color: white;
+                    border: none;
+                    padding: 12px 20px;
+                    border-radius: 8px;
+                    font-size: 14px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    box-shadow: 0 4px 12px rgba(30, 64, 175, 0.3);
+                    transition: all 0.3s ease;
+                    display: none;
+                `;
+                
+                // Добавляем hover эффект
+                installBtn.addEventListener('mouseenter', () => {
+                    installBtn.style.background = '#1d4ed8';
+                    installBtn.style.transform = 'translateY(-2px)';
+                });
+                
+                installBtn.addEventListener('mouseleave', () => {
+                    installBtn.style.background = '#1e40af';
+                    installBtn.style.transform = 'translateY(0)';
+                });
+                
+                // Обработчик клика
+                installBtn.addEventListener('click', async () => {
+                    if (deferredPrompt) {
+                        deferredPrompt.prompt();
+                        const { outcome } = await deferredPrompt.userChoice;
+                        console.log('📱 PWA: Результат установки:', outcome);
+                        deferredPrompt = null;
+                        hideInstallButton();
+                    }
+                });
+                
+                document.body.appendChild(installBtn);
+                installButton = installBtn;
+            }
+            
+            function showInstallButton() {
+                if (installButton) {
+                    installButton.style.display = 'block';
+                    console.log('📱 PWA: Кнопка установки показана');
+                }
+            }
+            
+            function hideInstallButton() {
+                if (installButton) {
+                    installButton.style.display = 'none';
+                    console.log('📱 PWA: Кнопка установки скрыта');
                 }
             }
 
