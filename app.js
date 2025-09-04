@@ -95,9 +95,9 @@
                 }
                 
                 // Инициализируем rewardPlan если не существует
-                if (!appState.rewardPlan || typeof appState.rewardPlan !== 'object') {
-                    appState.rewardPlan = { description: '' };
-                    console.log('🎯 rewardPlan инициализирован как пустой объект');
+                if (!appState.rewardPlan || !Array.isArray(appState.rewardPlan)) {
+                    appState.rewardPlan = [];
+                    console.log('🎯 rewardPlan инициализирован как пустой массив');
                 }
                 
                 // Инициализируем resetDate если не существует
@@ -124,13 +124,32 @@
                         level: 1,
                         totalXP: 0,
                         currentLevelXP: 0,
-                        bestWeekXP: 0,
                         weeklyXP: 0,
                         weeklyStars: 0,
                         starBank: 0,
-                        weekStartKey: null
+                        bestWeekXP: 0,
+                        bestWeekRange: '',
+                        dailyXP: {},
+                        dailyTasksCompleted: {},
+                        dailyRewardsRedeemed: {},
+                        dailyLearningTime: {}
                     };
                     console.log('📈 progress инициализирован со значениями по умолчанию');
+                } else {
+                    // Проверяем и инициализируем отдельные поля progress
+                    if (typeof appState.progress.level === 'undefined') appState.progress.level = 1;
+                    if (typeof appState.progress.totalXP === 'undefined' || appState.progress.totalXP < 0) appState.progress.totalXP = 0;
+                    if (typeof appState.progress.currentLevelXP === 'undefined' || appState.progress.currentLevelXP < 0) appState.progress.currentLevelXP = 0;
+                    if (typeof appState.progress.weeklyXP === 'undefined' || appState.progress.weeklyXP < 0) appState.progress.weeklyXP = 0;
+                    if (typeof appState.progress.weeklyStars === 'undefined' || appState.progress.weeklyStars < 0) appState.progress.weeklyStars = 0;
+                    if (typeof appState.progress.starBank === 'undefined' || appState.progress.starBank < 0) appState.progress.starBank = 0;
+                    if (typeof appState.progress.bestWeekXP === 'undefined' || appState.progress.bestWeekXP < 0) appState.progress.bestWeekXP = 0;
+                    if (typeof appState.progress.bestWeekRange === 'undefined') appState.progress.bestWeekRange = '';
+                    if (!appState.progress.dailyXP || typeof appState.progress.dailyXP !== 'object') appState.progress.dailyXP = {};
+                    if (!appState.progress.dailyTasksCompleted || typeof appState.progress.dailyTasksCompleted !== 'object') appState.progress.dailyTasksCompleted = {};
+                    if (!appState.progress.dailyRewardsRedeemed || typeof appState.progress.dailyRewardsRedeemed !== 'object') appState.progress.dailyRewardsRedeemed = {};
+                    if (!appState.progress.dailyLearningTime || typeof appState.progress.dailyLearningTime !== 'object') appState.progress.dailyLearningTime = {};
+                    console.log('📈 Проверены и установлены значения по умолчанию для полей progress');
                 }
                 
                 // Инициализируем role если не существует
@@ -149,6 +168,27 @@
                 if (!appState.pinCodes || typeof appState.pinCodes !== 'object') {
                     appState.pinCodes = {};
                     console.log('🔑 pinCodes инициализирован как пустой объект');
+                }
+                
+                // Инициализируем progressView если не существует
+                if (!appState.progressView || typeof appState.progressView !== 'object') {
+                    appState.progressView = {
+                        weekOffset: 0,
+                        monthOffset: 0
+                    };
+                    console.log('📊 progressView инициализирован со значениями по умолчанию');
+                }
+                
+                // Инициализируем isVerified если не существует
+                if (typeof appState.isVerified === 'undefined') {
+                    appState.isVerified = false;
+                    console.log('🔒 isVerified инициализирован как false');
+                }
+                
+                // Инициализируем isInitializing если не существует
+                if (typeof appState.isInitializing === 'undefined') {
+                    appState.isInitializing = false;
+                    console.log('🔄 isInitializing инициализирован как false');
                 }
                 
                 console.log('✅ Все значения по умолчанию установлены');
@@ -2813,6 +2853,12 @@
             function initApp() {
                 console.log('🚀 Инициализация приложения...');
                 
+                // ПРИНУДИТЕЛЬНАЯ инициализация appState для новых устройств
+                if (!window.appState) {
+                    window.appState = {};
+                    console.log('🔧 appState создан с нуля для нового устройства');
+                }
+                
                 // Проверяем возможности устройства
                 const deviceInfo = checkDeviceCapabilities();
                 
@@ -2832,6 +2878,20 @@
                 
                 // Инициализируем значения по умолчанию для первого запуска
                 ensureDefaultValues();
+                
+                // ПРИНУДИТЕЛЬНАЯ проверка и исправление для новых устройств
+                if (appState.progress && appState.progress.totalXP > 1000) {
+                    console.log('⚠️ Обнаружено неправильное значение totalXP:', appState.progress.totalXP, 'исправляем на 0');
+                    appState.progress.totalXP = 0;
+                }
+                
+                // Убеждаемся, что все поля progress корректны
+                if (appState.progress) {
+                    if (appState.progress.level < 1) appState.progress.level = 1;
+                    if (appState.progress.totalXP < 0) appState.progress.totalXP = 0;
+                    if (appState.progress.currentLevelXP < 0) appState.progress.currentLevelXP = 0;
+                    console.log('🔧 Progress поля исправлены для нового устройства');
+                }
                 
                 // Устанавливаем базовые значения по умолчанию
                 ensureWeeklyReset();
@@ -7915,7 +7975,7 @@
                     top: 50% !important;
                     left: 50% !important;
                     transform: translate(-50%, -50%) scale(0.8) !important;
-                    z-index: 99999 !important;
+                    z-index: 10000 !important;
                     background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%) !important;
                     border: 3px solid #3b82f6 !important;
                     border-radius: 20px !important;
@@ -7966,11 +8026,18 @@
                     notificationEl.style.transform = 'translate(-50%, -50%) scale(1)';
                     notificationEl.style.opacity = '1';
                     console.log('🔔 Notification shown:', notification.id);
+                    
+                    // Auto-close after 5 seconds
+                    safeSetTimeout(() => {
+                        closeNotification(notification.id);
+                    }, 5000);
                 }, 100);
             }
 
             // Close notification
             function closeNotification(notificationId) {
+                console.log('🔔 closeNotification called for ID:', notificationId);
+                
                 const notificationEl = document.querySelector(`[data-notification-id="${notificationId}"]`);
                 if (!notificationEl) {
                     console.warn(`⚠️ Уведомление с ID ${notificationId} не найдено`);
@@ -8002,6 +8069,58 @@
                     }, 100);
                 }, 400);
             }
+            
+            // Force close all notifications
+            function closeAllNotifications() {
+                console.log('🔔 closeAllNotifications called');
+                
+                // Close all popup notifications
+                const popupNotifications = document.querySelectorAll('.popup-notification');
+                popupNotifications.forEach(el => {
+                    const id = el.getAttribute('data-notification-id');
+                    if (id) {
+                        closeNotification(parseInt(id));
+                    }
+                });
+                
+                // Clear notification queue
+                notificationQueue.length = 0;
+                isProcessingQueue = false;
+                
+                // Hide simple notifications
+                const simpleNotification = document.getElementById('notification');
+                if (simpleNotification) {
+                    simpleNotification.classList.remove('show');
+                }
+                
+                console.log('🔔 All notifications closed');
+            }
+            
+            // Add keyboard listener for Escape key
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    closeAllNotifications();
+                }
+            });
+            
+            // Функция для полной переинициализации приложения (для новых устройств)
+            function reinitializeApp() {
+                console.log('🔄 Полная переинициализация приложения...');
+                
+                // Очищаем localStorage
+                localStorage.clear();
+                console.log('🗑️ localStorage очищен');
+                
+                // Сбрасываем appState
+                window.appState = {};
+                console.log('🗑️ appState сброшен');
+                
+                // Перезагружаем страницу
+                window.location.reload();
+            }
+            
+            // Добавляем функцию в глобальную область для отладки
+            window.reinitializeApp = reinitializeApp;
 
             // Star notification function removed
 
